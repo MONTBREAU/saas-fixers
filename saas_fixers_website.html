@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAAS Fixers | Premium Cleaning & Maintenance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --primary: #00f5d4;
+            --secondary: #00bbf9;
+            --accent: #f15bb5;
+            --dark: #0a0a0f;
+            --darker: #050508;
+            --card-bg: rgba(255,255,255,0.03);
+            --card-border: rgba(255,255,255,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--darker);
+            color: #fff;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        /* ========== HERO SECTION ========== */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero-bg canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--darker) 70%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .brand-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title .saas { color: #fff; display: inline-block; }
+        .hero-title .fixers { 
+            color: var(--primary); 
+            display: inline-block;
+            text-shadow: 0 0 40px rgba(0,245,212,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 300;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .swipe-hint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+        }
+
+        .swipe-hint-text {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .swipe-arrow {
+            width: 30px;
+            height: 50px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            position: relative;
+            animation: swipePulse 2s infinite;
+        }
+
+        .swipe-arrow::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: swipeDot 2s infinite;
+        }
+
+        @keyframes swipePulse {
+            0%, 100% { border-color: rgba(255,255,255,0.2); }
+            50% { border-color: var(--primary); }
+        }
+
+        @keyframes swipeDot {
+            0% { top: 8px; opacity: 1; }
+            100% { top: 32px; opacity: 0; }
+        }
+
+        /* ========== 3D SHOWCASE ========== */
+        .showcase-section {
+            min-height: 100vh;
+            position: relative;
+            padding: 100px 0;
+            overflow: hidden;
+        }
+
+        .showcase-header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 0 20px;
+        }
+
+        .showcase-header h2 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .showcase-header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .swiper-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            perspective: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .swiper-track {
+            position: relative;
+            width: 340px;
+            height: 480px;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+
+        .service-card {
+            position: absolute;
+            width: 340px;
+            height: 480px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            overflow: hidden;
+            backface-visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: grab;
+        }
+
+        .service-card:active { cursor: grabbing; }
+
+        .service-card .card-visual {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card .card-visual::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, var(--dark) 100%);
+        }
+
+        .service-card .card-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .service-card:hover .card-visual img { transform: scale(1.1); }
+
+        .service-card .card-icon {
+            position: absolute;
+            bottom: -30px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 2;
+            box-shadow: 0 10px 30px rgba(0,245,212,0.3);
+        }
+
+        .service-card .card-body {
+            padding: 50px 24px 24px;
+        }
+
+        .service-card .card-category {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .service-card .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .service-card .card-desc {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.6;
+        }
+
+        .service-card .card-cta {
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: gap 0.3s ease;
+        }
+
+        .service-card .card-cta:hover { gap: 14px; }
+
+        .swiper-nav {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .swiper-nav button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .swiper-nav button:hover {
+            border-color: var(--primary);
+            background: rgba(0,245,212,0.1);
+            transform: scale(1.1);
+        }
+
+        .swiper-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .swiper-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .swiper-dot.active {
+            background: var(--primary);
+            width: 32px;
+            border-radius: 4px;
+        }
+
+        /* ========== WHY SECTION ========== */
+        .why-section {
+            padding: 120px 20px;
+            position: relative;
+        }
+
+        .why-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .why-header h2 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .why-header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.1rem;
+        }
+
+        .why-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .why-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px 32px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .why-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .why-card:hover::before { transform: scaleX(1); }
+        .why-card:hover {
+            border-color: rgba(0,245,212,0.2);
+            transform: translateY(-4px);
+        }
+
+        .why-card .why-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(0,245,212,0.1), rgba(0,187,249,0.1));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+        }
+
+        .why-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .why-card p {
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* ========== CTA SECTION ========== */
+        .cta-section {
+            padding: 120px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-bg-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,245,212,0.15) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .cta-content {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-content p {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            color: #fff;
+            text-decoration: none;
+            padding: 20px 48px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            box-shadow: 0 10px 40px rgba(37,211,102,0.3);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .whatsapp-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #128c7e, #25d366);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .whatsapp-btn:hover::before { opacity: 1; }
+        .whatsapp-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(37,211,102,0.4);
+        }
+
+        .whatsapp-btn span, .whatsapp-btn svg {
+            position: relative;
+            z-index: 1;
+        }
+
+        .whatsapp-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: currentColor;
+        }
+
+        .cta-features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .cta-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .cta-feature .check {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--dark);
+            font-weight: 800;
+        }
+
+        /* ========== FLOATING WHATSAPP ========== */
+        .floating-whatsapp {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            animation: floatPulse 3s ease-in-out infinite;
+        }
+
+        .floating-whatsapp a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            border-radius: 50%;
+            box-shadow: 0 8px 30px rgba(37,211,102,0.4);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .floating-whatsapp a::after {
+            content: 'Book Now';
+            position: absolute;
+            right: 70px;
+            background: var(--dark);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            border: 1px solid var(--card-border);
+        }
+
+        .floating-whatsapp a:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .floating-whatsapp a:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(37,211,102,0.5);
+        }
+
+        .floating-whatsapp svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+
+        @keyframes floatPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            padding: 60px 20px 40px;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+        }
+
+        .footer-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .footer-brand span { color: var(--primary); }
+
+        .footer-copy {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+
+        /* ========== PARTICLE CANVAS ========== */
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .swiper-container { height: 500px; }
+            .swiper-track { width: 280px; height: 400px; }
+            .service-card { width: 280px; height: 400px; }
+            .service-card .card-visual { height: 180px; }
+            .floating-whatsapp { bottom: 20px; right: 20px; }
+            .floating-whatsapp a { width: 56px; height: 56px; }
+            .floating-whatsapp a::after { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Particles -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <div class="brand-badge">Premium Home Services</div>
+            <h1 class="hero-title">
+                <span class="saas">SAAS</span> <span class="fixers">Fixers</span>
+            </h1>
+            <p class="hero-subtitle">
+                Elite cleaning and maintenance operations for the modern home. 
+                Precision, power, and perfection in every service.
+            </p>
+            <div class="swipe-hint">
+                <span class="swipe-hint-text">Swipe to Explore</span>
+                <div class="swipe-arrow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 3D SHOWCASE ========== -->
+    <section class="showcase-section" id="showcase">
+        <div class="showcase-header">
+            <h2>Our Operations</h2>
+            <p>Swipe through our premium service portfolio. Each operation is executed with military precision.</p>
+        </div>
+
+        <div class="swiper-container" id="swiperContainer">
+            <div class="swiper-track" id="swiperTrack"></div>
+        </div>
+
+        <div class="swiper-nav">
+            <button id="prevBtn" aria-label="Previous service">&#8592;</button>
+            <button id="nextBtn" aria-label="Next service">&#8594;</button>
+        </div>
+
+        <div class="swiper-dots" id="swiperDots"></div>
+    </section>
+
+    <!-- ========== WHY SECTION ========== -->
+    <section class="why-section" id="why">
+        <div class="why-header">
+            <h2>Why SAAS Fixers?</h2>
+            <p>We don't just clean — we engineer perfection.</p>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card" data-reveal>
+                <div class="why-icon">&#9881;&#65039;</div>
+                <h3>Premium Machinery</h3>
+                <p>Industrial-grade equipment imported from Germany and Japan. Our machines extract dirt particles invisible to the naked eye, leaving surfaces clinically clean.</p>
+            </div>
+
+            <div class="why-card" data-reveal>
+                <div class="why-icon">&#127807;</div>
+                <h3>Eco-Friendly Chemicals</h3>
+                <p>100% biodegradable, non-toxic cleaning agents safe for children, pets, and the environment. Powerful on grime, gentle on everything else.</p>
+            </div>
+
+            <div class="why-card" data-reveal>
+                <div class="why-icon">&#128170;</div>
+                <h3>Professional Team</h3>
+                <p>Trained, certified, and background-verified technicians. Each specialist undergoes 200+ hours of training before their first deployment.</p>
+            </div>
+
+            <div class="why-card" data-reveal>
+                <div class="why-icon">&#9200;</div>
+                <h3>Same-Day Service</h3>
+                <p>Emergency operations available 24/7. Book before 2 PM and we'll be at your doorstep the same day — guaranteed.</p>
+            </div>
+
+            <div class="why-card" data-reveal>
+                <div class="why-icon">&#128161;</div>
+                <h3>Smart Diagnostics</h3>
+                <p>AI-powered issue detection for AC and appliance repairs. We identify problems before they become expensive failures.</p>
+            </div>
+
+            <div class="why-card" data-reveal>
+                <div class="why-icon">&#128274;</div>
+                <h3>Satisfaction Guarantee</h3>
+                <p>Not satisfied? We'll redo the service free of charge. No questions asked. Your peace of mind is our mission.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CTA SECTION ========== -->
+    <section class="cta-section" id="booking">
+        <div class="cta-bg-glow"></div>
+
+        <div class="cta-content">
+            <h2>Ready to Deploy?</h2>
+            <p>
+                Book your operation now. Our command center is standing by to dispatch 
+                a specialist team to your location. One message is all it takes.
+            </p>
+
+            <a href="https://wa.me/923313188025?text=Hello%20SAAS%20Fixers,%20I%20want%20to%20book%20a%20service" 
+               class="whatsapp-btn" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                <span>Book an Operation</span>
+            </a>
+
+            <div class="cta-features">
+                <div class="cta-feature">
+                    <div class="check">&#10003;</div>
+                    Instant Response
+                </div>
+                <div class="cta-feature">
+                    <div class="check">&#10003;</div>
+                    No Hidden Fees
+                </div>
+                <div class="cta-feature">
+                    <div class="check">&#10003;</div>
+                    24/7 Availability
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="footer-brand">SAAS <span>Fixers</span></div>
+        <p class="footer-copy">&copy; 2026 SAAS Fixers. All operations secured. Premium cleaning & maintenance services.</p>
+    </footer>
+
+    <!-- ========== FLOATING WHATSAPP ========== -->
+    <div class="floating-whatsapp">
+        <a href="https://wa.me/923313188025?text=Hello%20SAAS%20Fixers,%20I%20want%20to%20book%20a%20service" 
+           target="_blank" rel="noopener noreferrer" aria-label="Book via WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </a>
+    </div>
+
+    <script>
+    // ==================== HERO THREE.JS BACKGROUND ====================
+    (function() {
+        const container = document.getElementById('heroBg');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Create floating geometric shapes
+        const geometries = [];
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x00f5d4, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+
+        for (let i = 0; i < 30; i++) {
+            const geo = new THREE.IcosahedronGeometry(Math.random() * 1.5 + 0.5, 0);
+            const mesh = new THREE.Mesh(geo, material.clone());
+            mesh.position.set(
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 20 - 10
+            );
+            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+            mesh.userData = {
+                rotSpeed: { x: (Math.random() - 0.5) * 0.01, y: (Math.random() - 0.5) * 0.01 },
+                floatSpeed: Math.random() * 0.5 + 0.5,
+                floatOffset: Math.random() * Math.PI * 2
+            };
+            scene.add(mesh);
+            geometries.push(mesh);
+        }
+
+        camera.position.z = 5;
+
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+
+            geometries.forEach(mesh => {
+                mesh.rotation.x += mesh.userData.rotSpeed.x;
+                mesh.rotation.y += mesh.userData.rotSpeed.y;
+                mesh.position.y += Math.sin(time * mesh.userData.floatSpeed + mesh.userData.floatOffset) * 0.003;
+            });
+
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
+            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    })();
+
+    // ==================== PARTICLE BACKGROUND ====================
+    (function() {
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 60;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                radius: Math.random() * 1.5 + 0.5,
+                opacity: Math.random() * 0.3 + 0.1
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 245, 212, ${p.opacity})`;
+                ctx.fill();
+            });
+
+            // Draw connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 245, 212, ${0.05 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    })();
+
+    // ==================== SERVICE DATA ====================
+    const services = [
+        {
+            category: 'Cleaning Operation',
+            title: 'Solar Panel Cleaning',
+            desc: 'Specialized, high-efficiency cleaning to restore and maximize solar energy output. We use deionized water and soft-bristle systems.',
+            icon: '&#9728;&#65039;',
+            image: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Cleaning Operation',
+            title: 'Full House Deep Cleaning',
+            desc: 'Thorough, top-to-bottom sanitization and deep cleaning for residential properties. Every corner, every surface, perfected.',
+            icon: '&#127968;',
+            image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Cleaning Operation',
+            title: 'Sofa & Couch Cleaning',
+            desc: 'Professional fabric and leather deep cleaning, stain removal, and conditioning. Revive your furniture to showroom condition.',
+            icon: '&#128715;',
+            image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Cleaning Operation',
+            title: 'Curtain & Drapery Cleaning',
+            desc: 'Delicate yet powerful dust and allergen removal for all types of curtains and blinds. Preserve fabric integrity while eliminating contaminants.',
+            icon: '&#127752;',
+            image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Cleaning Operation',
+            title: 'Carpet & Rug Cleaning',
+            desc: 'Heavy-duty extraction and washing to revive carpets and remove deep-seated dirt. Hot water extraction technology for pristine results.',
+            icon: '&#129529;',
+            image: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Maintenance Operation',
+            title: 'AC Services',
+            desc: 'Premium air conditioning servicing, deep filter cleaning, gas refilling, and cooling optimization. Beat the heat with peak performance.',
+            icon: '&#10052;&#65039;',
+            image: 'https://images.unsplash.com/photo-1631545308772-81a0e0a3a6ce?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Maintenance Operation',
+            title: 'Washing Machine Repair',
+            desc: 'Expert diagnostics and troubleshooting for top-load, front-load, and automatic washing machines. Fast fixes, lasting solutions.',
+            icon: '&#129693;',
+            image: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=600&h=400&fit=crop'
+        },
+        {
+            category: 'Maintenance Operation',
+            title: 'Kitchen Plumbing & Fixtures',
+            desc: 'Precision repair and replacement of kitchen taps, mixers, leakages, and premium plumbing fixtures. Zero drips, perfect flow.',
+            icon: '&#128167;',
+            image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop'
+        }
+    ];
+
+    // ==================== 3D SWIPER ====================
+    (function() {
+        const track = document.getElementById('swiperTrack');
+        const dotsContainer = document.getElementById('swiperDots');
+        let currentIndex = 0;
+        let isDragging = false;
+        let startX = 0;
+        let currentX = 0;
+        let velocity = 0;
+        let autoRotateInterval;
+
+        // Build cards
+        services.forEach((service, i) => {
+            const card = document.createElement('div');
+            card.className = 'service-card';
+            card.innerHTML = `
+                <div class="card-visual">
+                    <img src="${service.image}" alt="${service.title}" loading="lazy">
+                </div>
+                <div class="card-icon">${service.icon}</div>
+                <div class="card-body">
+                    <div class="card-category">${service.category}</div>
+                    <div class="card-title">${service.title}</div>
+                    <div class="card-desc">${service.desc}</div>
+                    <a href="https://wa.me/923313188025?text=Hello%20SAAS%20Fixers,%20I%20want%20to%20book%20a%20service:%20${encodeURIComponent(service.title)}" 
+                       class="card-cta" target="_blank" rel="noopener noreferrer">
+                        Book Now &rarr;
+                    </a>
+                </div>
+            `;
+            track.appendChild(card);
+
+            // Dot
+            const dot = document.createElement('div');
+            dot.className = 'swiper-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goTo(i));
+            dotsContainer.appendChild(dot);
+        });
+
+        const cards = track.querySelectorAll('.service-card');
+        const dots = dotsContainer.querySelectorAll('.swiper-dot');
+
+        function updateCards() {
+            cards.forEach((card, i) => {
+                const offset = i - currentIndex;
+                const absOffset = Math.abs(offset);
+
+                // 3D positioning
+                const translateZ = -absOffset * 120;
+                const translateX = offset * 280;
+                const rotateY = offset * -25;
+                const scale = 1 - absOffset * 0.15;
+                const opacity = 1 - absOffset * 0.4;
+
+                card.style.transform = `
+                    translateX(${translateX}px) 
+                    translateZ(${translateZ}px) 
+                    rotateY(${rotateY}deg) 
+                    scale(${Math.max(scale, 0.5)})
+                `;
+                card.style.opacity = Math.max(opacity, 0);
+                card.style.zIndex = services.length - absOffset;
+                card.style.pointerEvents = offset === 0 ? 'auto' : 'none';
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        function goTo(index) {
+            currentIndex = Math.max(0, Math.min(index, services.length - 1));
+            updateCards();
+            resetAutoRotate();
+        }
+
+        function next() { goTo(currentIndex + 1); }
+        function prev() { goTo(currentIndex - 1); }
+
+        document.getElementById('nextBtn').addEventListener('click', next);
+        document.getElementById('prevBtn').addEventListener('click', prev);
+
+        // Touch / Mouse Drag
+        const container = document.getElementById('swiperContainer');
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            currentX = e.clientX;
+            track.style.transition = 'none';
+            clearInterval(autoRotateInterval);
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            currentX = e.touches[0].clientX;
+            track.style.transition = 'none';
+            clearInterval(autoRotateInterval);
+        }, { passive: true });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX;
+            velocity = currentX - startX;
+
+            cards.forEach((card, i) => {
+                const offset = i - currentIndex;
+                const baseX = offset * 280;
+                card.style.transform = `
+                    translateX(${baseX + velocity * 0.5}px) 
+                    translateZ(${-Math.abs(offset) * 120}px) 
+                    rotateY(${offset * -25}deg) 
+                    scale(${Math.max(1 - Math.abs(offset) * 0.15, 0.5)})
+                `;
+            });
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            velocity = currentX - startX;
+
+            cards.forEach((card, i) => {
+                const offset = i - currentIndex;
+                const baseX = offset * 280;
+                card.style.transform = `
+                    translateX(${baseX + velocity * 0.5}px) 
+                    translateZ(${-Math.abs(offset) * 120}px) 
+                    rotateY(${offset * -25}deg) 
+                    scale(${Math.max(1 - Math.abs(offset) * 0.15, 0.5)})
+                `;
+            });
+        }, { passive: true });
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            track.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)';
+
+            if (velocity < -80) {
+                next();
+            } else if (velocity > 80) {
+                prev();
+            } else {
+                updateCards();
+            }
+            velocity = 0;
+            resetAutoRotate();
+        }
+
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+
+        // Wheel scroll
+        let wheelTimeout;
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(() => {
+                if (e.deltaY > 0) next();
+                else prev();
+            }, 50);
+        }, { passive: false });
+
+        // Auto rotate
+        function startAutoRotate() {
+            autoRotateInterval = setInterval(() => {
+                if (currentIndex < services.length - 1) {
+                    next();
+                } else {
+                    goTo(0);
+                }
+            }, 5000);
+        }
+
+        function resetAutoRotate() {
+            clearInterval(autoRotateInterval);
+            startAutoRotate();
+        }
+
+        updateCards();
+        startAutoRotate();
+    })();
+
+    // ==================== GSAP ANIMATIONS ====================
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance
+    const heroTl = gsap.timeline({ delay: 0.3 });
+    heroTl.to('.brand-badge', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
+          .to('.saas', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=0.4')
+          .to('.fixers', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, '-=0.7')
+          .to('.hero-subtitle', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+          .to('.swipe-hint', { opacity: 1, duration: 0.8 }, '-=0.3');
+
+    gsap.set('.saas, .fixers', { opacity: 0, y: 60 });
+    gsap.set('.hero-subtitle', { opacity: 0, y: 30 });
+
+    // Why cards reveal
+    gsap.utils.toArray('.why-card').forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: {
+                trigger: card,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+            },
+            y: 60,
+            opacity: 0,
+            duration: 0.8,
+            delay: i * 0.1,
+            ease: 'power3.out'
+        });
+    });
+
+    // CTA section
+    gsap.from('.cta-content', {
+        scrollTrigger: {
+            trigger: '.cta-section',
+            start: 'top 70%'
+        },
+        y: 80,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+    });
+
+    // Showcase header
+    gsap.from('.showcase-header', {
+        scrollTrigger: {
+            trigger: '.showcase-section',
+            start: 'top 80%'
+        },
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+    });
+
+    // Why header
+    gsap.from('.why-header', {
+        scrollTrigger: {
+            trigger: '.why-section',
+            start: 'top 80%'
+        },
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+    });
+
+    // Parallax on hero scroll
+    gsap.to('.hero-content', {
+        scrollTrigger: {
+            trigger: '.hero',
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true
+        },
+        y: -100,
+        opacity: 0.3
+    });
+    </script>
+</body>
+</html>
